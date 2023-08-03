@@ -1,0 +1,71 @@
+{
+    "all_train": {
+        "name": "mace",
+        "log_dir": "../runs/logs",
+        "model_dir": "../runs/models",
+        "checkpoints_dir": "../runs/checkpoints",
+        "results_dir": "../runs/results",
+        "downloads_dir": "../runs/downloads",
+        "device": "cuda",
+        "model": "MACE",
+        "hidden_irreps": "64x0e + 64x1o",
+        "loss": "weighted",
+        "energy_weight": "1",
+        "forces_weight": "30",
+        "eval_interval": "1",
+        "restart_latest": "yes",
+        "num_interactions": "4",
+        "wandb": "yes",
+        "wandb_project": "fff-mace",
+        "wandb_entity": "alextuecke"
+    },
+    "train_preprocess": {
+        "r_max": "5.0",
+        "valid_fraction": "0.1",
+        "compute_statistics": "yes",
+        "atomic_numbers": "[1, 6, 7, 8]"
+    },
+    "finetune_preprocess": {
+        "r_max": "5.0",
+        "valid_fraction": "0.1",
+        "compute_statistics": "yes",
+        "atomic_numbers": "[1, 6, 7, 8]"
+    },
+    "train": {
+        "r_max": "5.0",
+        "batch_size": "10",
+        "max_num_epochs": "16",
+        "ema": "yes",
+        "ema_decay": "0.99"
+    },
+    "finetune_train": {
+        "r_max": "5.0",
+        "batch_size": "10",
+        "max_num_epochs": "26",
+        "ema": "yes",
+        "ema_decay": "0.99"
+    },
+    "reference_energies_path": "../data/wb97x_dz-reference_energies.json",
+    "initial_dataset": "../data/raw-data/ani1x-release.h5",
+    "finetune_dataset": "../data/md-runs/propanol/md-run.xyz",
+    "new_data_location": "../runs/data",
+    "train_size": 0.5,
+    "h5_prefix": "h5_",
+    "configs_dir": "../runs/configs",
+    "wandb_log_hypers": [
+        "loss",
+        "max_num_epochs",
+        "correlation",
+        "num_interactions",
+        "hidden_irreps",
+        "MLP_irreps",
+        "num_radial_basis",
+        "batch_size",
+        "start_swa",
+        "ema_decay",
+        "forces_weight",
+        "energy_weight",
+        "lr",
+        "amsgrad"
+    ]
+}
