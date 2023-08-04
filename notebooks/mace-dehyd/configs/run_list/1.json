@@ -8,16 +8,13 @@
         "downloads_dir": "../runs/downloads",
         "device": "cuda",
         "model": "MACE",
-        "hidden_irreps": "32x0e + 32x1o",
+        "hidden_irreps": "4x0e + 4x1o",
         "loss": "weighted",
         "energy_weight": "1",
         "forces_weight": "30",
-        "eval_interval": "1",
         "restart_latest": "yes",
-        "num_interactions": "4",
-        "wandb": "yes",
-        "wandb_project": "fff-mace",
-        "wandb_entity": "alextuecke"
+        "eval_interval": "1",
+        "num_interactions": "1"
     },
     "train_preprocess": {
         "r_max": "5.0",
@@ -34,38 +31,22 @@
     "train": {
         "r_max": "5.0",
         "batch_size": "10",
-        "max_num_epochs": "16",
+        "max_num_epochs": "6",
         "ema": "yes",
         "ema_decay": "0.99"
     },
     "finetune_train": {
         "r_max": "5.0",
         "batch_size": "10",
-        "max_num_epochs": "26",
+        "max_num_epochs": "12",
         "ema": "yes",
         "ema_decay": "0.99"
     },
-    "reference_energies_path": "../data/wb97x_dz-reference_energies.json",
+    "reference_energies_path": "../data/wb97x_dz-new_reference_energies.json",
     "initial_dataset": "../data/raw-data/ani1x-release.h5",
     "finetune_dataset": "../data/md-runs/propanol/md-run.xyz",
     "new_data_location": "../runs/data",
-    "train_size": 0.5,
+    "train_size": 0.05,
     "h5_prefix": "h5_",
-    "configs_dir": "../runs/configs",
-    "wandb_log_hypers": [
-        "loss",
-        "max_num_epochs",
-        "correlation",
-        "num_interactions",
-        "hidden_irreps",
-        "MLP_irreps",
-        "num_radial_basis",
-        "batch_size",
-        "start_swa",
-        "ema_decay",
-        "forces_weight",
-        "energy_weight",
-        "lr",
-        "amsgrad"
-    ]
+    "configs_dir": "../runs/configs"
 }

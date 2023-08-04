@@ -9,6 +9,8 @@ from ase.io import read, write
 from shutil import rmtree
 from fff.fff_mace_utils.fffmaceutils import run_preprocess, run_train
 
+
+
 #Parse command-line arguments
 parser = argparse.ArgumentParser()
 parser.add_argument('--config', help='Path to configuration file', type=str, default="../configs/config.json")

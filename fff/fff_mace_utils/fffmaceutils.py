@@ -10,6 +10,7 @@ import h5py
 from ase import Atoms, units
 import numpy as np
 import shutil
+import random
 
 def create_train_command(config: dict):
     """Create a list of arguments to be used in the subprocess from a dictionary
@@ -182,7 +183,7 @@ def add_wandb(config: dict):
         
 
 # Function to convert a page of the HDF5 file to an Atoms object
-def page_to_atoms(page, energy_method: str, forces_method: str, percentage=None):
+def page_to_atoms(page, energy_method: str, forces_method: str, percentage: float = None, randomize: bool = True):
     """Convert an h5 page to a list of molecules
 
     Args:
@@ -193,6 +194,7 @@ def page_to_atoms(page, energy_method: str, forces_method: str, percentage=None)
     
     Returns: An array of Atoms objects
     """
+
     # Get the energies at the desired level
     all_energies = page[energy_method]
     
@@ -201,28 +203,31 @@ def page_to_atoms(page, energy_method: str, forces_method: str, percentage=None)
 
     # Calculate the number of molecules to yield based on the percentage
     num_molecules = int(len(all_energies) * percentage / 100) if percentage is not None else None
+    if num_molecules == 0: num_molecules = 1
+    
+    indicies: list
+    if randomize:
+        indices = random.sample(range(len(page['coordinates'])), num_molecules)  # Randomly select elements from the array
+    else:
+        indices = list(range(num_molecules))
 
     # Generate configurations
-    for i, coords in enumerate(page['coordinates']):
+    for i in indices:
         # Skip if energy not done
         if np.isnan(all_energies[i]):
             continue
 
         # Make the atoms object
-        atoms = Atoms(numbers=page['atomic_numbers'], positions=coords)
+        atoms = Atoms(numbers=page['atomic_numbers'], positions=page['coordinates'][i])
 
         # Attach energy and forces to the Atoms object
         atoms.info['energy'] = all_energies[i] * units.Ha
-        atoms.arrays['forces'] = np.zeros_like(coords) if all_forces is None else all_forces[i] * units.Ha
+        atoms.arrays['forces'] = np.zeros_like(page['coordinates'][i]) if all_forces is None else all_forces[i] * units.Ha
 
         yield atoms
 
-        # Stop if we've reached the desired number of molecules
-        if num_molecules is not None and i+1 >= num_molecules:
-            break
 
-
-def h5_to_xyz(h5_file_path, xyz_file_path, method="wb97x_dz", percentage=None):
+def h5_to_xyz(h5_file_path, xyz_file_path, method="wb97x_dz", percentage: float = None, seed: int = None, randomize: bool = True):
     """Convert h5 file to xyz file
 
     Args:
@@ -233,6 +238,11 @@ def h5_to_xyz(h5_file_path, xyz_file_path, method="wb97x_dz", percentage=None):
     """
     with h5py.File(h5_file_path, 'r') as original_data:
         # Loop over each composition
+        if randomize:
+            if seed is None:
+                seed = np.random.randint(0, 1e8)  # Generate a random 8-digit seed if none is provided
+            random.seed(seed)
+
         for composition, page in original_data.items():
-            for atoms in page_to_atoms(page, f'{method}.energy', f'{method}.forces', percentage):
+            for atoms in page_to_atoms(page=page, energy_method=f'{method}.energy', forces_method=f'{method}.forces', percentage=percentage, randomize=randomize):
                 write(xyz_file_path, atoms, format='extxyz', append=True)  # Use ase's write function to write to xyz file

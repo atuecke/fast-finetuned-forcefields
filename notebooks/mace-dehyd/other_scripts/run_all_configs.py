@@ -16,7 +16,12 @@ parser.add_argument('--configs', help='Path to configuration folder', type=str, 
 parser.add_argument('--method', help='Path to configuration file', type=str, default="wb97x_dz")
 args = parser.parse_args()
 
-for config_name in os.listdir(args.configs):
+finetune = True
+configs = "../configs/run_list"
+method = "wb97x_dz"
+
+for config_name in os.listdir(configs):
+    config_name = f"{configs}/{config_name}"
     if(str(config_name).endswith(".json")):
 
         #Parse the configuration file
@@ -24,26 +29,26 @@ for config_name in os.listdir(args.configs):
             config = json.load(f)
 
         #Change the reference energies name
-        config["reference_energies_path"] = f"../data/{args.method}-reference_energies.json"
+        config["reference_energies_path"] = f"../data/{method}-reference_energies.json"
         with open(config_name, 'w') as f:
-                json.dump(config, f, indent=4)
+                json.dump(config, f, indent=4)  
 
         #Initial training
         config_path = run_preprocess(config_path=config_name)
-        run_train = run_train(config_path=config_path)
+        run_train(config_path=config_path)
 
 
         #Finetuning
-        if(args.finetune == True):
+        if(finetune == True):
             #Parse the configuration file
             with open(config_name, 'r') as f:
                 config = json.load(f)
 
             #Change the reference energies to the new ones
-            config["reference_energies_path"] = f"../data/{args.method}-new_reference_energies.json"
+            config["reference_energies_path"] = f"../data/{method}-new_reference_energies.json"
             with open(config_name, 'w') as f:
                     json.dump(config, f, indent=4)
 
             #Run preprocessing and training
             run_preprocess(config_path=config_path, finetune=True)
-            run_train = run_train(config_path=config_path, finetune=True)
+            run_train(config_path=config_path, finetune=True)

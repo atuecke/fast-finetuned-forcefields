@@ -12,9 +12,9 @@
         "loss": "weighted",
         "energy_weight": "1",
         "forces_weight": "30",
-        "eval_interval": "1",
         "restart_latest": "yes",
         "num_interactions": "4",
+        "eval_interval": "1",
         "wandb": "yes",
         "wandb_project": "fff-mace",
         "wandb_entity": "alextuecke"

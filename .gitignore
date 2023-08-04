@@ -127,3 +127,9 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+#Folders containing datasets and trained models
+notebooks/mace-dehyd/runs/**
+notebooks/mace-dehyd/**/wandb/
+notebooks/mace-dehyd/**/data/*
+notebooks/cc-dehyd
