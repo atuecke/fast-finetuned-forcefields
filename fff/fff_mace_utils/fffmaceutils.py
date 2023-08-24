@@ -11,6 +11,7 @@ from ase import Atoms, units
 import numpy as np
 import shutil
 import random
+from tqdm import tqdm
 
 def create_train_command(config: dict):
     """Create a list of arguments to be used in the subprocess from a dictionary
@@ -191,7 +192,7 @@ def page_to_atoms(page, energy_method: str, forces_method: str, percentage: floa
         energy_method: The index of the total energy in the h5 page
         forces_method: The index of the forces for each atom in the h5 page
         percentage: The percentage of molecules from each type to save. For example, 20 means 20%. None means no limit
-    
+        randomize: Whether or not to randomize the molecules. If false, the the first X molecules is converted, if true, X number of molecules are converted from randomly in the page
     Returns: An array of Atoms objects
     """
 
@@ -205,7 +206,7 @@ def page_to_atoms(page, energy_method: str, forces_method: str, percentage: floa
     num_molecules = int(len(all_energies) * percentage / 100) if percentage is not None else None
     if num_molecules == 0: num_molecules = 1
     
-    indicies: list
+    indices: list
     if randomize:
         indices = random.sample(range(len(page['coordinates'])), num_molecules)  # Randomly select elements from the array
     else:
@@ -234,7 +235,8 @@ def h5_to_xyz(h5_file_path, xyz_file_path, method="wb97x_dz", percentage: float 
         h5_file_path: File path for h5 file that you want to convert
         xyz_file_path: Path where you want to save the converted xyz file
         method: The method of the h5 file that you want to save
-        num_molecules: The number of molecules from each type to save. 1 would be the lowest, saving one molecule from each of the types of molecules in the h5 file. None means no limit
+        percentage: The percentage of molecules from each type to save. For example, 20 means 20%. None means no limit
+        randomize: Whether or not to randomize the molecules. If false, the the first X molecules is converted, if true, X number of molecules are converted from randomly in the page
     """
     with h5py.File(h5_file_path, 'r') as original_data:
         # Loop over each composition
@@ -243,6 +245,6 @@ def h5_to_xyz(h5_file_path, xyz_file_path, method="wb97x_dz", percentage: float 
                 seed = np.random.randint(0, 1e8)  # Generate a random 8-digit seed if none is provided
             random.seed(seed)
 
-        for composition, page in original_data.items():
+        for page in original_data.values():
             for atoms in page_to_atoms(page=page, energy_method=f'{method}.energy', forces_method=f'{method}.forces', percentage=percentage, randomize=randomize):
                 write(xyz_file_path, atoms, format='extxyz', append=True)  # Use ase's write function to write to xyz file
